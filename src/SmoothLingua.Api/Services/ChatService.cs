@@ -1,29 +1,32 @@
-﻿using SmoothLingua;
-using SmoothLingua.Abstractions;
+﻿using SmoothLingua.Abstractions;
+using SmoothLingua.Api.Exceptions;
+using SmoothLingua.Api.Models;
 
-public class ChatService : IChatService
+namespace SmoothLingua.Api.Services
 {
-    public Dictionary<int, IAgent> agents = new Dictionary<int, IAgent>();
-
-    public Response Handle(int id, Chat input)
+    public class ChatService : IChatService
     {
-        if(!agents.TryGetValue(id, out var agent))
+        public Dictionary<int, IAgent> agents = new Dictionary<int, IAgent>();
+
+        public Response Handle(int id, Chat input)
         {
-            throw new MissingAgentException(id);
+            if (!agents.TryGetValue(id, out var agent))
+            {
+                throw new MissingAgentException(id);
+            }
+
+            return agent.Handle(input.ConversationId, input.Input);
         }
 
-        return agent.Handle(input.ConversationId, input.Input);
-    }
+        public async Task Train(int id, Domain domain, CancellationToken cancellationToken)
+        {
+            DomainValidator.Validate(domain);
 
-    public async Task Train(int id, Domain domain, CancellationToken cancellationToken)
-    {
-        DomainValidator.Validate(domain);
+            MemoryStream ms = new MemoryStream();
+            var trainer = new Trainer();
+            await trainer.Train(domain, ms, cancellationToken);
 
-        MemoryStream ms = new MemoryStream();
-        var trainer = new Trainer();
-        await trainer.Train(domain, ms, cancellationToken);
-
-        agents[id] = await AgentLoader.Load(new MemoryStream(ms.GetBuffer()), cancellationToken);
+            agents[id] = await AgentLoader.Load(new MemoryStream(ms.GetBuffer()), cancellationToken);
+        }
     }
 }
-

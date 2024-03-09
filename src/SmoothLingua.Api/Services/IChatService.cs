@@ -1,9 +1,13 @@
-﻿
-using SmoothLingua.Abstractions;
+﻿using SmoothLingua.Abstractions;
+using SmoothLingua.Api.Models;
 
-public interface IChatService
+namespace SmoothLingua.Api.Services
 {
-    Task Train(int id, Domain domain, CancellationToken cancellationToken);
+    public interface IChatService
+    {
+        Task Train(int id, Domain domain, CancellationToken cancellationToken);
 
-    Response Handle(int id, Chat input);
+        Response Handle(int id, Chat input);
+    }
+
 }

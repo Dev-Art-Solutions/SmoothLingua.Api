@@ -1,6 +1,9 @@
-﻿public class MissingAgentException : Exception
+﻿namespace SmoothLingua.Api.Exceptions
 {
-    public MissingAgentException(int id)
-        : base($"Missing agent {id}")
-    { }
+    public class MissingAgentException : Exception
+    {
+        public MissingAgentException(int id)
+            : base($"Missing agent {id}")
+        { }
+    }
 }
